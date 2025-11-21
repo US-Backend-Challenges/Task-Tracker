@@ -1,0 +1,24 @@
+# Cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Build
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+
+# Virtual envs
+venv/
+.env/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# Temp files
+*.log
+.DS_Store
+Thumbs.db

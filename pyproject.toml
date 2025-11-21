@@ -1,0 +1,21 @@
+[project]
+name = "task-cli"
+version = "0.1.0"
+description = "A simple task manager CLI"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "rich"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools]
+py-modules = ["main"]
+packages = ["src"]
+
+[project.scripts]
+task-cli = "main:main"
