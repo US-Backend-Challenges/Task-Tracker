@@ -4,29 +4,30 @@ from datetime import datetime
 from rich.console import Console
 from rich.table import Table
 
-full_path = os.path.join(os.path.dirname(__file__), "../tasks.json")
+JSON_PATH = os.path.join(os.path.dirname(__file__), "../tasks.json")
 console = Console()
 
 def read_json():
-    with open(full_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-        
-    return data
+    try:
+        with open(JSON_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {"tasks": []}
 
 def write_json(data):
-    with open(full_path, "w", encoding="utf-8") as f:
+    with open(JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
         
 def display_table(data):
-    property_table = Table(show_lines=True)
-    property_table.add_column("ID")
-    property_table.add_column("Task")
-    property_table.add_column("Status")
+    table = Table(show_lines=True)
+    table.add_column("ID")
+    table.add_column("Task")
+    table.add_column("Status")
     
     for task in data:
-        property_table.add_row(str(task['id']), task['description'], task['status'])
+        table.add_row(str(task['id']), task['description'], task['status'])
         
-    return property_table
+    return table
 
 def list_tasks():
     data = read_json()
@@ -35,81 +36,92 @@ def list_tasks():
     
     console.print(property_table)
     
-def list_tasks_by_status(status):
-    data = read_json()
+    return data["tasks"]
     
+def list_tasks_by_status(status):
     if(status not in ["todo", "in-progress", "done"]):
         console.print("INVALID STATUS!", style="red on white")
         
-        return
+        return []
     
-    property_table = display_table(filter(lambda task: task["status"] == status, data["tasks"]))
+    data = read_json()
     
-    console.print(property_table)
+    filtered = [t for t in data["tasks"] if t["status"] == status]
+    
+    console.print(display_table(filtered))
+    
+    return filtered
 
 def add_task(description):
     data = read_json()
     
-    id = data["tasks"][-1]["id"] + 1 if len(data["tasks"]) > 0 else 1
+    new_id = data["tasks"][-1]["id"] + 1 if data["tasks"] else 1
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    data["tasks"].append({
-        "id": id,
+    task = {
+        "id": new_id,
         "description": description,
         "status": "todo",
-        "createdAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "updatedAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    })
+        "createdAt": now,
+        "updatedAt": now,
+    }
+
+    data["tasks"].append(task)
     
     write_json(data)
     
-    print(f"Task added successfully (ID: {id})")
+    return task
         
-def update_task(id, description):
+def update_task(task_id, description):
     data = read_json()
-        
-    index = next((i for i, item in enumerate(data["tasks"]) if item["id"] == id), None)
+    tasks = data["tasks"]
     
-    if index is not None:
-        data["tasks"][index]["description"] = description
-        data["tasks"][index]["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        write_json(data)
-    else:
-        console.print("TASK NOT FOUND!", style="red on white")
-        
-        return
-        
-def mark_task(id, status):
-    data = read_json()
+    for task in tasks:
+        if task["id"] == task_id:
+            task["description"] = description
+            task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            write_json(data)
+            
+            return task
     
-    if(status not in ["todo", "in-progress", "done"]):
+    console.print("TASK NOT FOUND!", style="red on white")
+    
+    return None
+        
+def mark_task(task_id, status):
+    if status not in ["todo", "in-progress", "done"]:
         console.print("INVALID STATUS!", style="red on white")
-        
-        return
-    
-    index = next((i for i, item in enumerate(data["tasks"]) if item["id"] == id), None)
-    
-    if index is not None:
-        data["tasks"][index]["status"] = status
-    else:
-        console.print("TASK NOT FOUND!", style="red on white")
-        
-        return
-    
-    write_json(data)  
-        
-def delete_task(id):
+        return None
+
     data = read_json()
     
-    index = next((i for i, item in enumerate(data["tasks"]) if item["id"] == id), None)
+    for task in data["tasks"]:
+        if task["id"] == task_id:
+            task["status"] = status
+            task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            write_json(data)
+            
+            return task
+
+    console.print("TASK NOT FOUND!", style="red on white")
     
-    if index is not None:
-        data["tasks"].pop(index)
+    return None 
         
-        write_json(data)
-    else:
-        console.print("TASK NOT FOUND!", style="red on white")
-        
-        return
-        
-    write_json(data)
+def delete_task(task_id):
+    data = read_json()
+    
+    tasks = data["tasks"]
+
+    for i, task in enumerate(tasks):
+        if task["id"] == task_id:
+            deleted = tasks.pop(i)
+            
+            write_json(data)
+            
+            return deleted
+
+    console.print("TASK NOT FOUND!", style="red on white")
+    
+    return None
