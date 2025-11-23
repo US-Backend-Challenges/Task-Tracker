@@ -70,6 +70,10 @@ def add_task(description):
     
     write_json(data)
     
+    added_task = display_table([task])
+    
+    console.print(added_task)
+    
     return task
         
 def update_task(task_id, description):
@@ -80,6 +84,10 @@ def update_task(task_id, description):
         if task["id"] == task_id:
             task["description"] = description
             task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            updated_task = display_table([task])
+            
+            console.print(updated_task)
             
             write_json(data)
             
@@ -101,6 +109,10 @@ def mark_task(task_id, status):
             task["status"] = status
             task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
+            updated_task = display_table([task])
+            
+            console.print(updated_task)
+            
             write_json(data)
             
             return task
@@ -119,6 +131,8 @@ def delete_task(task_id):
             deleted = tasks.pop(i)
             
             write_json(data)
+            
+            list_tasks()
             
             return deleted
 
