@@ -5,7 +5,7 @@ description = "A simple task manager CLI"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    "rich"
+    "rich",
     "pytest"    
 ]
 
