@@ -15,10 +15,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 py-modules = ["main"]
-
-[tool.setuptools.packages.find]
-where = ["src"]
-exclude = ["tests"]
+packages = ["src"]
 
 [project.scripts]
 task-cli = "main:main"
