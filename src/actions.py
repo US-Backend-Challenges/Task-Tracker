@@ -1,3 +1,7 @@
+# Typing
+from typing import List, Dict
+from src.models.task import Task
+# 
 import os
 import json
 from datetime import datetime
@@ -7,18 +11,18 @@ from rich.table import Table
 JSON_PATH = os.path.join(os.path.dirname(__file__), "../tasks.json")
 console = Console()
 
-def read_json():
+def read_json() -> Dict:
     try:
         with open(JSON_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
         return {"tasks": []}
 
-def write_json(data):
+def write_json(data: Dict) -> None:
     with open(JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
         
-def display_table(data):
+def display_table(data: List[Task]) -> Table:
     table = Table(show_lines=True)
     table.add_column("ID")
     table.add_column("Task")
@@ -29,7 +33,7 @@ def display_table(data):
         
     return table
 
-def list_tasks():
+def list_tasks() -> List[Task]:
     data = read_json()
         
     property_table = display_table(data["tasks"])
@@ -38,7 +42,7 @@ def list_tasks():
     
     return data["tasks"]
     
-def list_tasks_by_status(status):
+def list_tasks_by_status(status: str) -> List[Task]:
     if(status not in ["todo", "in-progress", "done"]):
         console.print("INVALID STATUS!", style="red on white")
         
@@ -52,7 +56,7 @@ def list_tasks_by_status(status):
     
     return filtered
 
-def add_task(description):
+def add_task(description: str) -> Task:
     data = read_json()
     
     new_id = data["tasks"][-1]["id"] + 1 if data["tasks"] else 1
@@ -76,7 +80,7 @@ def add_task(description):
     
     return task
         
-def update_task(task_id, description):
+def update_task(task_id: int, description: str) -> Task | None:
     data = read_json()
     tasks = data["tasks"]
     
@@ -97,7 +101,7 @@ def update_task(task_id, description):
     
     return None
         
-def mark_task(task_id, status):
+def mark_task(task_id: int, status: str) -> Task | None:
     if status not in ["todo", "in-progress", "done"]:
         console.print("INVALID STATUS!", style="red on white")
         return None
@@ -121,7 +125,7 @@ def mark_task(task_id, status):
     
     return None 
         
-def delete_task(task_id):
+def delete_task(task_id: int) -> Task | None:
     data = read_json()
     
     tasks = data["tasks"]
